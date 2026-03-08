@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Portfolio Generator</title>
+    <title>Dynamic Portfolio & iOS Calendar</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -30,11 +27,12 @@
             min-height: 100vh;
         }
         
-        /* Glassmorphism Utilities */
+        /* Unified Glassmorphism */
         .glass {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.85); /* Darker iOS base from Program 2 */
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         
@@ -51,74 +49,27 @@
             outline: none;
         }
 
-        /* --- Custom Glass Theme for Flatpickr Calendar --- */
-        .flatpickr-calendar {
-            background: rgba(15, 23, 42, 0.6) !important; 
-            backdrop-filter: blur(40px) !important;
-            -webkit-backdrop-filter: blur(40px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            border-radius: 1.5rem !important;
-            padding: 10px !important;
+        /* --- INTEGRATED CALENDAR STYLES (From Program 2) --- */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .day-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s ease; font-size: 0.85rem;
         }
-
-        /* Glass effect for the Month Dropdown Button */
-        .flatpickr-current-month .flatpickr-monthDropdown-months {
-            appearance: none !important;
-            background: rgba(255, 255, 255, 0.05) !important;
-            backdrop-filter: blur(24px) !important;
-            -webkit-backdrop-filter: blur(24px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 0.75rem !important;
-            color: white !important;
-            padding: 4px 10px !important;
-            outline: none !important;
-            transition: background 0.3s ease;
+        .day-cell:hover:not(.selected):not(.empty) { background: rgba(255, 255, 255, 0.1); }
+        .day-cell.selected {
+            background: #007AFF; color: white; font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 122, 255, 0.5); transform: scale(1.05);
         }
-
-        .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+        .day-cell.today { border: 1px solid #007AFF; color: #007AFF; }
+        .picker-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
+        .picker-scroll::-webkit-scrollbar { width: 4px; }
+        .picker-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .nav-btn:active { transform: scale(0.9); transition: 0.1s; }
+        /* ------------------------------------------------ */
 
-        /* Dark Slate background for the dropdown options to remove the white box */
-        .flatpickr-current-month .flatpickr-monthDropdown-months option {
-            background-color: #0f172a !important; /* Deep dark blue/slate */
-            color: white !important;
-            font-weight: 500 !important;
-        }
-
-        /* Base text colors */
-        .flatpickr-months .flatpickr-month,
-        span.flatpickr-weekday,
-        .flatpickr-day {
-            color: white !important;
-            fill: white !important;
-        }
-
-        /* Selected Date Glass Pill */
-        .flatpickr-day.selected {
-            background: #007AFF !important;
-            border-color: #007AFF !important;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4) !important;
-        }
-
-        /* Hover Effect for Days */
-        .flatpickr-day:hover {
-            background: rgba(255, 255, 255, 0.15) !important;
-            border-color: rgba(255, 255, 255, 0.2) !important;
-            backdrop-filter: blur(10px) !important;
-        }
-
-        /* Navigation Arrows */
-        .flatpickr-current-month .numInputWrapper span.arrowUp:after { border-bottom-color: rgba(255, 255, 255, 0.7) !important; }
-        .flatpickr-current-month .numInputWrapper span.arrowDown:after { border-top-color: rgba(255, 255, 255, 0.7) !important; }
-
-        /* Hide Default Browser Calendar Icon on standard inputs just in case */
-        ::-webkit-calendar-picker-indicator {
-            display: none;
-        }
-
-        /* Cinematic Blur-to-Clear Animation */
         .form-fade-out {
             opacity: 0;
             transform: scale(0.95);
@@ -128,17 +79,9 @@
         }
 
         #portfolioView { display: none; }
-        
-        .portfolio-pre-anim {
-            opacity: 0;
-            filter: blur(40px);
-            transform: scale(0.85) translateZ(0);
-        }
-        
+        .portfolio-pre-anim { opacity: 0; filter: blur(40px); transform: scale(0.85); }
         .portfolio-focus-in {
-            opacity: 1;
-            filter: blur(0px);
-            transform: scale(1) translateZ(0);
+            opacity: 1; filter: blur(0px); transform: scale(1);
             transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
@@ -158,20 +101,50 @@
                     <input type="text" id="inName" required placeholder="Your Full Name Here" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 </div>
                 
-                <div>
+                <div class="relative dropdown-container">
                     <label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 ml-1">DOB</label>
-                    <input type="text" id="inDob" required placeholder="Select Date" class="w-full p-4 rounded-2xl text-white input-glass outline-none cursor-pointer">
+                    <button type="button" id="calToggle" class="w-full p-4 rounded-2xl text-left text-white input-glass flex justify-between items-center cursor-pointer">
+                        <span id="dateDisplay" class="font-medium text-sm text-slate-400">Select Date</span>
+                        <i data-lucide="calendar" class="w-5 h-5 text-iosBlue"></i>
+                    </button>
+                    <input type="hidden" id="inDob" required>
+
+                    <div id="iosCalendar" class="hidden absolute left-0 right-0 md:right-auto md:w-80 z-[110] mt-4 glass rounded-[2.5rem] p-5 dropdown-animate">
+                        <div class="flex justify-between items-center mb-4 px-1">
+                            <div class="flex items-center gap-1 cursor-pointer hover:bg-white/10 p-1 px-2 rounded-lg transition" id="monthYearSelect">
+                                <span id="currentMonth" class="font-bold text-sm">March</span>
+                                <span id="currentYear" class="font-bold text-sm text-slate-400">2026</span>
+                                <i data-lucide="chevron-down" class="w-3 h-3 text-slate-500 ml-1"></i>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" id="prevMonth" class="nav-btn p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                <button type="button" id="nextMonth" class="nav-btn p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid text-[9px] font-bold text-slate-500 mb-2 text-center uppercase tracking-widest">
+                            <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div class="text-iosBlue/70">Sa</div><div class="text-iosBlue/70">Su</div>
+                        </div>
+                        <div id="calendarDays" class="calendar-grid"></div>
+                        <div class="mt-4 pt-4 border-t border-white/5 flex justify-center">
+                            <button type="button" id="todayBtn" class="text-[11px] font-bold text-iosBlue uppercase tracking-widest hover:opacity-70">Back to Today</button>
+                        </div>
+                        <div id="pickerOverlay" class="hidden absolute inset-0 glass rounded-[2.5rem] z-[60] p-6 flex flex-col">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xs font-bold uppercase text-slate-400">Jump to Year</h3>
+                                <button type="button" id="closePicker" class="text-iosBlue text-xs font-bold">Done</button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mb-6" id="monthPickerGrid"></div>
+                            <div class="flex-1 overflow-y-auto picker-scroll pr-2 grid grid-cols-3 gap-2" id="yearPickerGrid"></div>
+                        </div>
+                    </div>
                 </div>
-                
                 <div class="space-y-1 relative dropdown-container">
                     <label class="block text-xs font-bold uppercase tracking-widest text-slate-500 ml-2">Gender</label>
                     <input type="hidden" id="gender" required>
-
                     <button type="button" id="gender-btn" class="dropdown-btn w-full p-4 rounded-2xl text-left text-slate-400 input-glass flex justify-between items-center relative z-10 cursor-pointer">
                         <span id="gender-text">Select</span>
-                        <svg class="text-slate-400 transition-transform duration-300 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        <i data-lucide="chevron-down" class="text-slate-400 transition-transform duration-300"></i>
                     </button>
-
                     <ul id="gender-menu" class="dropdown-menu hidden absolute z-[100] w-full mt-2 rounded-2xl bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden transform opacity-0 scale-95 transition-all duration-300 pointer-events-none">
                         <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Male">Male</li>
                         <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Female">Female</li>
@@ -187,12 +160,10 @@
                 <div class="space-y-1 relative dropdown-container">
                     <label class="block text-xs font-bold uppercase tracking-widest text-slate-500 ml-2">Marital Status</label>
                     <input type="hidden" id="maritalStatus" required>
-
                     <button type="button" id="marital-btn" class="dropdown-btn w-full p-4 rounded-2xl text-left text-slate-400 input-glass flex justify-between items-center relative z-10 cursor-pointer">
                         <span id="marital-text">Select</span>
-                        <svg class="text-slate-400 transition-transform duration-300 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        <i data-lucide="chevron-down" class="text-slate-400 transition-transform duration-300"></i>
                     </button>
-
                     <ul id="marital-menu" class="dropdown-menu hidden absolute z-[100] w-full mt-2 rounded-2xl bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden transform opacity-0 scale-95 transition-all duration-300 pointer-events-none">
                         <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Single">Single</li>
                         <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors" data-value="Married">Married</li>
@@ -204,10 +175,8 @@
                 <input type="email" id="inEmail" required placeholder="Email Address" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="tel" id="inPhone" required placeholder="Phone Number" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="text" id="inAddress" placeholder="Full Address (City, Country)" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none">
-                
                 <input type="text" id="inEdu" placeholder="Education (e.g. B.Tech Computer Science)" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="text" id="inJob" placeholder="Occupation / Role" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                
                 <textarea id="inSkills" placeholder="Skills (Comma separated: HTML, CSS, JavaScript)" rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
                 <textarea id="inAbout" placeholder="Write a short bio about yourself..." rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
             </div>
@@ -232,12 +201,9 @@
     <main id="portfolioView" class="w-full max-w-6xl mx-auto pb-20">
         <section class="glass rounded-[3rem] p-8 md:p-16 mb-8 relative overflow-hidden flex flex-col items-center text-center">
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-iosBlue/20 blur-[100px] -z-10 rounded-full"></div>
-            
             <img id="outPhoto" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover border-4 border-white/20 shadow-2xl mb-8" alt="Profile">
-            
             <h1 id="outName" class="text-5xl md:text-7xl font-black tracking-tight mb-4"></h1>
             <p id="outJob" class="text-xl md:text-3xl text-iosBlue font-medium mb-8"></p>
-            
             <div class="flex flex-wrap justify-center gap-4">
                 <a href="#" id="outEmailBtn" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition">
                     <i data-lucide="mail" class="w-5 h-5 text-iosBlue"></i> <span id="outEmail"></span>
@@ -260,20 +226,17 @@
                         <li class="flex justify-between pb-2"><span>Location:</span> <strong id="outAddress" class="text-white text-right max-w-[60%]"></strong></li>
                     </ul>
                 </div>
-
                 <div class="glass p-8 rounded-[2rem] text-center">
                     <a id="downloadResumeBtn" href="#" class="w-full inline-flex justify-center items-center gap-2 bg-white text-slate-900 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition shadow-xl">
                         <i data-lucide="download"></i> Download Resume
                     </a>
                 </div>
             </div>
-
             <div class="md:col-span-2 space-y-8">
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">About Me</h3>
                     <p id="outAbout" class="text-lg text-slate-200 leading-relaxed"></p>
                 </div>
-                
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">Education</h3>
                     <div class="flex items-start gap-4">
@@ -286,32 +249,114 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6">Technical Skills</h3>
                     <div id="outSkills" class="flex flex-wrap gap-3"></div>
                 </div>
             </div>
         </div>
-
-        <div class="mt-10 text-center">
-            <button onclick="location.reload()" class="text-slate-500 hover:text-white underline text-sm transition">
-                Start Over & Edit Details
-            </button>
-        </div>
+        <div class="mt-10 text-center"><button onclick="location.reload()" class="text-slate-500 hover:text-white underline text-sm transition">Start Over & Edit Details</button></div>
     </main>
 
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
-        // Initialize Glass Calendar via Flatpickr
-        flatpickr("#inDob", {
-            dateFormat: "d-m-Y", 
-            disableMobile: true  
-        });
+        /* ------------------------------------------------------------------ */
+        /* --- INTEGRATED CALENDAR LOGIC (From Program 2) ------------------- */
+        /* ------------------------------------------------------------------ */
+        let viewDate = new Date(); 
+        let selectedDate = null;
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // --- BULLETPROOF DROPDOWN LOGIC ---
+        const calToggle = document.getElementById('calToggle');
+        const calMenu = document.getElementById('iosCalendar');
+        const calDays = document.getElementById('calendarDays');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const pickerOverlay = document.getElementById('pickerOverlay');
+        const inDobHidden = document.getElementById('inDob');
+
+        calToggle.onclick = (e) => { e.stopPropagation(); calMenu.classList.toggle('hidden'); renderCalendar(); };
+
+        document.getElementById('monthYearSelect').onclick = () => {
+            pickerOverlay.classList.remove('hidden');
+            renderPickers();
+        };
+        document.getElementById('closePicker').onclick = () => pickerOverlay.classList.add('hidden');
+
+        function renderCalendar() {
+            calDays.innerHTML = '';
+            const year = viewDate.getFullYear();
+            const month = viewDate.getMonth();
+            document.getElementById('currentMonth').innerText = months[month];
+            document.getElementById('currentYear').innerText = year;
+
+            let firstDay = new Date(year, month, 1).getDay();
+            let dayOffset = firstDay === 0 ? 6 : firstDay - 1; 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < dayOffset; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day-cell empty';
+                calDays.appendChild(empty);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.className = 'day-cell';
+                day.innerText = i;
+                const isToday = new Date().toDateString() === new Date(year, month, i).toDateString();
+                if (isToday) day.classList.add('today');
+                if (selectedDate && selectedDate.toDateString() === new Date(year, month, i).toDateString()) {
+                    day.classList.add('selected');
+                }
+
+                day.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedDate = new Date(year, month, i);
+                    const formattedDate = `${i < 10 ? '0' + i : i}-${month + 1 < 10 ? '0' + (month + 1) : month + 1}-${year}`;
+                    dateDisplay.innerText = formattedDate;
+                    dateDisplay.classList.remove('text-slate-400');
+                    inDobHidden.value = formattedDate; // Bind to Program 1 logic
+                    renderCalendar();
+                    setTimeout(() => calMenu.classList.add('hidden'), 150);
+                };
+                calDays.appendChild(day);
+            }
+        }
+
+        function renderPickers() {
+            const mGrid = document.getElementById('monthPickerGrid');
+            const yGrid = document.getElementById('yearPickerGrid');
+            mGrid.innerHTML = ''; yGrid.innerHTML = '';
+            months.forEach((m, i) => {
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.className = `p-2 text-[10px] rounded-lg transition ${viewDate.getMonth() === i ? 'bg-iosBlue text-white' : 'hover:bg-white/10 text-slate-300'}`;
+                btn.innerText = m.substring(0, 3);
+                btn.onclick = () => { viewDate.setMonth(i); renderCalendar(); renderPickers(); };
+                mGrid.appendChild(btn);
+            });
+            for (let i = 1950; i <= 2050; i++) {
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.id = `year-${i}`;
+                btn.className = `p-2 text-[10px] rounded-lg transition ${viewDate.getFullYear() === i ? 'bg-iosBlue text-white' : 'hover:bg-white/10 text-slate-300'}`;
+                btn.innerText = i;
+                btn.onclick = () => { viewDate.setFullYear(i); renderCalendar(); renderPickers(); };
+                yGrid.appendChild(btn);
+            }
+            setTimeout(() => {
+                const activeYear = document.getElementById(`year-${viewDate.getFullYear()}`);
+                if(activeYear) activeYear.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 100);
+        }
+
+        document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); };
+        document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); };
+        document.getElementById('todayBtn').onclick = (e) => { e.stopPropagation(); viewDate = new Date(); renderCalendar(); };
+        /* ------------------------------------------------------------------ */
+
+        // --- DROPDOWN LOGIC (Program 1) ---
         function setupDropdown(btnId, menuId, textId, inputId) {
             const btn = document.getElementById(btnId);
             const menu = document.getElementById(menuId);
@@ -321,14 +366,12 @@
 
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const isClosed = menu.classList.contains('hidden');
-                
                 closeAllDropdowns();
-                
                 if (isClosed) {
                     menu.classList.remove('hidden', 'pointer-events-none');
                     btn.classList.add('active-glass');
-                    
                     requestAnimationFrame(() => {
                         menu.classList.remove('opacity-0', 'scale-95');
                         menu.classList.add('opacity-100', 'scale-100');
@@ -352,42 +395,33 @@
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 menu.classList.remove('opacity-100', 'scale-100');
                 menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-                setTimeout(() => {
-                    if (menu.classList.contains('opacity-0')) {
-                        menu.classList.add('hidden');
-                    }
-                }, 300);
+                setTimeout(() => { if (menu.classList.contains('opacity-0')) menu.classList.add('hidden'); }, 300);
             });
             document.querySelectorAll('.dropdown-btn').forEach(btn => {
                 btn.classList.remove('active-glass');
                 const icon = btn.querySelector('svg');
                 if(icon) icon.classList.remove('rotate-180', 'text-iosBlue');
             });
+            calMenu.classList.add('hidden'); // Also close calendar
         }
 
         setupDropdown('gender-btn', 'gender-menu', 'gender-text', 'gender');
         setupDropdown('marital-btn', 'marital-menu', 'marital-text', 'maritalStatus');
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown-container')) {
-                closeAllDropdowns();
-            }
+            if (!e.target.closest('.dropdown-container')) closeAllDropdowns();
         });
 
-        // --- FORM SUBMISSION & CINEMATIC ANIMATION ---
+        // --- PORTFOLIO GENERATION LOGIC ---
         document.getElementById('detailsForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            if (!document.getElementById('gender').value) {
-                alert('Please select your gender.'); return;
-            }
-            if (!document.getElementById('maritalStatus').value) {
-                alert('Please select your marital status.'); return;
+            if (!document.getElementById('gender').value || !document.getElementById('maritalStatus').value || !inDobHidden.value) {
+                alert('Please fill all required fields including DOB, Gender and Marital Status.'); 
+                return;
             }
 
-            // Map fields
             document.getElementById('outName').textContent = document.getElementById('inName').value;
-            document.getElementById('outDob').textContent = document.getElementById('inDob').value;
+            document.getElementById('outDob').textContent = inDobHidden.value;
             document.getElementById('outGender').textContent = document.getElementById('gender').value;
             document.getElementById('outNat').textContent = document.getElementById('inNat').value || 'N/A';
             document.getElementById('outMarital').textContent = document.getElementById('maritalStatus').value;
@@ -424,21 +458,15 @@
             if (resumeFile) {
                 dlBtn.href = URL.createObjectURL(resumeFile);
                 dlBtn.download = `${document.getElementById('inName').value.replace(/\s+/g, '_')}_Resume.pdf`;
-                dlBtn.style.display = 'inline-flex';
-            } else {
-                dlBtn.style.display = 'none'; 
             }
 
             const formView = document.getElementById('formView');
             const portView = document.getElementById('portfolioView');
-
             formView.classList.add('form-fade-out');
-            
             setTimeout(() => {
                 formView.style.display = 'none';
                 portView.style.display = 'block'; 
                 portView.classList.add('portfolio-pre-anim');
-                
                 requestAnimationFrame(() => {
                     portView.classList.remove('portfolio-pre-anim');
                     portView.classList.add('portfolio-focus-in');
