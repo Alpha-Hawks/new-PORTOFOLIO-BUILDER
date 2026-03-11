@@ -207,9 +207,9 @@
                 <input type="url" id="inGithub" placeholder="GitHub Link" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="url" id="inLinkedin" placeholder="LinkedIn Link" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="text" id="inJob" placeholder="Field Related To" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <textarea id="inProjects" placeholder="Projects Done (Comma separated)" rows="2" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
+               <textarea id="inAbout" placeholder="Short bio..." rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
                 <textarea id="inSkills" placeholder="Skills (Comma separated)" rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
-                <textarea id="inAbout" placeholder="Short bio..." rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
+               <textarea id="inProjects" placeholder="Projects Done (Comma separated)" rows="2" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
@@ -434,7 +434,7 @@
             const eduData = [
                 { name: document.getElementById('inCollege').value, start: document.getElementById('inCollegeStart').value, end: document.getElementById('inCollegeEnd').value, label: 'Degree College' },
                 { name: document.getElementById('inJuniorCollege').value, start: document.getElementById('inJuniorStart').value, end: document.getElementById('inJuniorEnd').value, label: 'Junior College' },
-                { name: document.getElementById('inSchool').value, start: document.getElementById('inSchoolStart').value, end: document.getElementById('inSchoolEnd').value, label: 'School' }
+                { name: document.getElementById('inSchool').value,end: document.getElementById('inSchoolEnd').value, label: 'School' }
             ];
 
             eduData.forEach(item => {
@@ -510,3 +510,4 @@
     </script>
 </body>
 </html>
+
