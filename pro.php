@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Portfolio & iOS Calendar Pro</title>
+    <title>Dynamic Portfolio & iOS Calendar</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,8 +27,9 @@
             min-height: 100vh;
         }
         
+        /* Unified Glassmorphism */
         .glass {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.85); /* Darker iOS base from Program 2 */
             backdrop-filter: blur(40px) saturate(200%);
             -webkit-backdrop-filter: blur(40px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -48,6 +49,7 @@
             outline: none;
         }
 
+        /* --- INTEGRATED CALENDAR STYLES (From Program 2) --- */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .day-cell {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
@@ -59,17 +61,21 @@
             box-shadow: 0 0 15px rgba(0, 122, 255, 0.5); transform: scale(1.05);
         }
         .day-cell.today { border: 1px solid #007AFF; color: #007AFF; }
-        
         .picker-scroll {
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
         .picker-scroll::-webkit-scrollbar { width: 4px; }
         .picker-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .nav-btn:active { transform: scale(0.9); transition: 0.1s; }
+        /* ------------------------------------------------ */
 
         .form-fade-out {
-            opacity: 0; transform: scale(0.95); filter: blur(10px);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none;
+            opacity: 0;
+            transform: scale(0.95);
+            filter: blur(10px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
         }
 
         #portfolioView { display: none; }
@@ -78,18 +84,6 @@
             opacity: 1; filter: blur(0px); transform: scale(1);
             transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        /* Timeline Connector Style */
-        .timeline-line::after {
-            content: '';
-            position: absolute;
-            left: 23px;
-            top: 48px;
-            bottom: -24px;
-            width: 2px;
-            background: rgba(255,255,255,0.1);
-        }
-        .timeline-item:last-child .timeline-line::after { display: none; }
     </style>
 </head>
 <body class="p-4 md:p-10 flex items-center justify-center">
@@ -115,16 +109,16 @@
                     </button>
                     <input type="hidden" id="inDob" required>
 
-                    <div id="iosCalendar" class="hidden absolute left-0 right-0 md:left-auto md:w-80 z-[999] mt-4 glass rounded-[2.5rem] p-5">
+                    <div id="iosCalendar" class="hidden absolute left-0 right-0 md:right-auto md:w-80 z-[110] mt-4 glass rounded-[2.5rem] p-5 dropdown-animate">
                         <div class="flex justify-between items-center mb-4 px-1">
                             <div class="flex items-center gap-1 cursor-pointer hover:bg-white/10 p-1 px-2 rounded-lg transition" id="monthYearSelect">
-                                <span id="currentMonth" class="font-bold text-sm"></span>
-                                <span id="currentYear" class="font-bold text-sm text-slate-400"></span>
+                                <span id="currentMonth" class="font-bold text-sm">March</span>
+                                <span id="currentYear" class="font-bold text-sm text-slate-400">2026</span>
                                 <i data-lucide="chevron-down" class="w-3 h-3 text-slate-500 ml-1"></i>
                             </div>
                             <div class="flex gap-2">
-                                <button type="button" id="prevMonth" class="p-1.5 rounded-lg hover:bg-white/10 transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                                <button type="button" id="nextMonth" class="p-1.5 rounded-lg hover:bg-white/10 transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                                <button type="button" id="prevMonth" class="nav-btn p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                <button type="button" id="nextMonth" class="nav-btn p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                             </div>
                         </div>
                         <div class="calendar-grid text-[9px] font-bold text-slate-500 mb-2 text-center uppercase tracking-widest">
@@ -144,18 +138,17 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="space-y-1 relative dropdown-container">
                     <label class="block text-xs font-bold uppercase tracking-widest text-slate-500 ml-2">Gender</label>
                     <input type="hidden" id="gender" required>
                     <button type="button" id="gender-btn" class="dropdown-btn w-full p-4 rounded-2xl text-left text-slate-400 input-glass flex justify-between items-center relative z-10 cursor-pointer">
                         <span id="gender-text">Select</span>
-                        <i data-lucide="chevron-down"></i>
+                        <i data-lucide="chevron-down" class="text-slate-400 transition-transform duration-300"></i>
                     </button>
                     <ul id="gender-menu" class="dropdown-menu hidden absolute z-[100] w-full mt-2 rounded-2xl bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden transform opacity-0 scale-95 transition-all duration-300 pointer-events-none">
-                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer border-b border-white/5" data-value="Male">Male</li>
-                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer border-b border-white/5" data-value="Female">Female</li>
-                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer" data-value="Other">Other</li>
+                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Male">Male</li>
+                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Female">Female</li>
+                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors" data-value="Other">Other</li>
                     </ul>
                 </div>
 
@@ -169,57 +162,46 @@
                     <input type="hidden" id="maritalStatus" required>
                     <button type="button" id="marital-btn" class="dropdown-btn w-full p-4 rounded-2xl text-left text-slate-400 input-glass flex justify-between items-center relative z-10 cursor-pointer">
                         <span id="marital-text">Select</span>
-                        <i data-lucide="chevron-down"></i>
+                        <i data-lucide="chevron-down" class="text-slate-400 transition-transform duration-300"></i>
                     </button>
                     <ul id="marital-menu" class="dropdown-menu hidden absolute z-[100] w-full mt-2 rounded-2xl bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-hidden transform opacity-0 scale-95 transition-all duration-300 pointer-events-none">
-                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer border-b border-white/5" data-value="Single">Single</li>
-                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer" data-value="Married">Married</li>
+                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5" data-value="Single">Single</li>
+                        <li class="p-4 text-white hover:bg-white/10 cursor-pointer transition-colors" data-value="Married">Married</li>
                     </ul>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-white/5">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-iosBlue mb-6 ml-1">Education History</h3>
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="inCollege" placeholder="Degree College Name" class="md:col-span-2 p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inCollegeStart" placeholder="joining year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inCollegeEnd" placeholder="End Year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="inJuniorCollege" placeholder="Junior College Name" class="md:col-span-2 p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inJuniorStart" placeholder="joining year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inJuniorEnd" placeholder="End Year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="inSchool" placeholder="School Name" class="md:col-span-2 p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inSchoolStart" placeholder="joining year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                        <input type="number" id="inSchoolEnd" placeholder="End Year" class="p-4 rounded-2xl text-white input-glass outline-none">
-                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
                 <input type="email" id="inEmail" required placeholder="Email Address" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
                 <input type="tel" id="inPhone" required placeholder="Phone Number" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <input type="text" id="inAddress" placeholder="Full Address (City, Country)" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <input type="text" id="inPostal" placeholder="Postal Code" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <input type="url" id="inGithub" placeholder="GitHub Link" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <input type="url" id="inLinkedin" placeholder="LinkedIn Link" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
-                <input type="text" id="inJob" placeholder="Field Related To" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none">
-               <textarea id="inAbout" placeholder="Short bio..." rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
-                <textarea id="inSkills" placeholder="Skills (Comma separated)" rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
-               <textarea id="inProjects" placeholder="Projects Done (Comma separated)" rows="2" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
+                <span id="phoneError" class="text-red-500 text-sm mt-1 hidden block"></span>
+                <input type="url" id="inGithub" placeholder="GitHub Profile URL" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="url" id="inLinkedin" placeholder="LinkedIn Profile URL" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inAddress" placeholder="Full Address (City, Country)" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inDegree" placeholder="Degree (e.g. B.Tech)" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inCollege" placeholder="College Name" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inDegreeJoiningYear" placeholder="College Joining Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inDegreeEndingYear" placeholder="College Ending Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inJuniorCollege" placeholder="Junior College Name" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inJCJoiningYear" placeholder="JC Joining Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inJCEndingYear" placeholder="JC Ending Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inSchool" placeholder="School Name" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inSchoolJoiningYear" placeholder="School Joining Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="number" id="inSchoolEndingYear" placeholder="School Ending Year" min="1900" max="2100" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <input type="text" id="inJob" placeholder="Occupation / Role" class="w-full p-4 rounded-2xl text-white input-glass outline-none">
+                <textarea id="inSkills" placeholder="Skills (Comma separated: HTML, CSS, JavaScript)" rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
+                <textarea id="inAbout" placeholder="Write a short bio about yourself..." rows="2" class="w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
+                <textarea id="inprojects" placeholder="Projects (Comma separated: Project 1, Project 2)" rows="3" class="md:col-span-2 w-full p-4 rounded-2xl text-white input-glass outline-none"></textarea>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
                 <div class="space-y-2">
                     <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Profile Photo</label>
-                    <input type="file" id="inPhoto" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-white/10 file:text-white cursor-pointer transition hover:file:bg-white/20">
+                    <input type="file" id="inPhoto" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-white/10 file:text-white cursor-pointer hover:file:bg-white/20 transition">
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Resume (PDF)</label>
-                    <input type="file" id="inResume" accept=".pdf" class="w-full text-sm text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-white/10 file:text-white cursor-pointer transition hover:file:bg-white/20">
+                    <input type="file" id="inResume" accept=".pdf" class="w-full text-sm text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:bg-white/10 file:text-white cursor-pointer hover:file:bg-white/20 transition">
                 </div>
             </div>
 
@@ -233,12 +215,21 @@
         <section class="glass rounded-[3rem] p-8 md:p-16 mb-8 relative overflow-hidden flex flex-col items-center text-center">
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-iosBlue/20 blur-[100px] -z-10 rounded-full"></div>
             <img id="outPhoto" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover border-4 border-white/20 shadow-2xl mb-8" alt="Profile">
-            <h1 id="outName" class="text-5xl md:text-7xl font-black tracking-tight mb-4 text-white"></h1>
-            <p id="outJob" class="text-xl md:text-3xl text-iosBlue font-medium mb-8 uppercase tracking-widest"></p>
+            <h1 id="outName" class="text-5xl md:text-7xl font-black tracking-tight mb-4"></h1>
+            <p id="outJob" class="text-xl md:text-3xl text-iosBlue font-medium mb-8"></p>
             <div class="flex flex-wrap justify-center gap-4">
-                <a href="#" id="outEmailBtn" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition"><i data-lucide="mail" class="w-5 h-5 text-iosBlue"></i> <span id="outEmail"></span></a>
-                <a href="#" id="outGithub" target="_blank" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition"><i data-lucide="github" class="w-5 h-5 text-iosBlue"></i> GitHub</a>
-                <a href="#" id="outLinkedin" target="_blank" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition"><i data-lucide="linkedin" class="w-5 h-5 text-iosBlue"></i> LinkedIn</a>
+                <a href="#" id="outEmailBtn" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition">
+                    <i data-lucide="mail" class="w-5 h-5 text-iosBlue"></i> <span id="outEmail"></span>
+                </a>
+                <a href="#" id="outPhoneBtn" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition">
+                    <i data-lucide="phone" class="w-5 h-5 text-iosBlue"></i> <span id="outPhone"></span>
+                </a>
+                <a href="#" id="outGithubBtn" target="_blank" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition">
+                    <i data-lucide="github" class="w-5 h-5 text-iosBlue"></i> <span id="outGithub">GitHub</span>
+                </a>
+                <a href="#" id="outLinkedinBtn" target="_blank" class="glass px-6 py-3 rounded-full flex items-center gap-2 hover:bg-white/10 transition">
+                    <i data-lucide="linkedin" class="w-5 h-5 text-iosBlue"></i> <span id="outLinkedin">LinkedIn</span>
+                </a>
             </div>
         </section>
 
@@ -251,48 +242,193 @@
                         <li class="flex justify-between border-b border-white/5 pb-2"><span>Gender:</span> <strong id="outGender" class="text-white"></strong></li>
                         <li class="flex justify-between border-b border-white/5 pb-2"><span>Marital Status:</span> <strong id="outMarital" class="text-white"></strong></li>
                         <li class="flex justify-between border-b border-white/5 pb-2"><span>Nationality:</span> <strong id="outNat" class="text-white"></strong></li>
-                        <li class="flex flex-col border-b border-white/5 pb-2"><span class="mb-1">Location:</span> <strong id="outAddress" class="text-white text-right"></strong></li>
-                        <li class="flex justify-between pb-2"><span>Postal Code:</span> <strong id="outPostal" class="text-white"></strong></li>
+                        <li class="flex justify-between pb-2"><span>Location:</span> <strong id="outAddress" class="text-white text-right max-w-[60%]"></strong></li>
                     </ul>
                 </div>
                 <div class="glass p-8 rounded-[2rem] text-center">
-                    <a id="downloadResumeBtn" href="#" class="w-full inline-flex justify-center items-center gap-2 bg-white text-slate-900 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition shadow-xl"><i data-lucide="download"></i> Download Resume</a>
+                    <a id="downloadResumeBtn" href="#" class="w-full inline-flex justify-center items-center gap-2 bg-white text-slate-900 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition shadow-xl">
+                        <i data-lucide="download"></i> Download Resume
+                    </a>
                 </div>
             </div>
-            
             <div class="md:col-span-2 space-y-8">
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">About Me</h3>
                     <p id="outAbout" class="text-lg text-slate-200 leading-relaxed"></p>
                 </div>
-                
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6">Education</h3>
-                    <div id="outEducationTimeline" class="space-y-8 relative">
+                    <div class="space-y-6">
+                        <!-- Degree Section -->
+                        <div id="degreeSection" class="flex items-start gap-4 pb-4 border-b border-white/10">
+                            <div class="flex-1 flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-iosBlue/20 flex items-center justify-center shrink-0">
+                                    <i data-lucide="graduation-cap" class="text-iosBlue w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div id="outDegree" class="text-lg font-bold text-white leading-tight"></div>
+                                    <div id="outCollege" class="text-slate-300 text-sm mt-1"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Joined</div>
+                                    <div id="outDegreeJoining" class="text-iosBlue font-semibold"></div>
+                                </div>
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Ended</div>
+                                    <div id="outDegreeEnding" class="text-iosBlue font-semibold"></div>
+                                </div>
+                            </div>
                         </div>
-                </div>
 
-                <div class="glass p-8 rounded-[2rem]">
-                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">Projects</h3>
-                    <div id="outProjects" class="grid grid-cols-1 gap-4"></div>
-                </div>
+                        <!-- Junior College Section -->
+                        <div id="juniorCollegeSection" class="flex items-start gap-4 pb-4 border-b border-white/10">
+                            <div class="flex-1 flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-iosBlue/20 flex items-center justify-center shrink-0">
+                                    <i data-lucide="book-open" class="text-iosBlue w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div id="outJuniorCollege" class="text-lg font-bold text-white leading-tight"></div>
+                                    <div class="text-slate-400 text-sm mt-1">Junior College</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Joined</div>
+                                    <div id="outJCJoining" class="text-iosBlue font-semibold"></div>
+                                </div>
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Ended</div>
+                                    <div id="outJCEnding" class="text-iosBlue font-semibold"></div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- School Section -->
+                        <div id="schoolSection" class="flex items-start gap-4">
+                            <div class="flex-1 flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-iosBlue/20 flex items-center justify-center shrink-0">
+                                    <i data-lucide="book" class="text-iosBlue w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div id="outSchool" class="text-lg font-bold text-white leading-tight"></div>
+                                    <div class="text-slate-400 text-sm mt-1">School</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Joined</div>
+                                    <div id="outSchoolJoining" class="text-iosBlue font-semibold"></div>
+                                </div>
+                                <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-center">
+                                    <div class="text-xs text-slate-400 mb-1">Ended</div>
+                                    <div id="outSchoolEnding" class="text-iosBlue font-semibold"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="glass p-8 rounded-[2rem]">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6">Technical Skills</h3>
                     <div id="outSkills" class="flex flex-wrap gap-3"></div>
                 </div>
+                <div class="glass p-8 rounded-[2rem]">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6">Projects</h3>
+                    <div id="outProjects" class="flex flex-wrap gap-3"></div>
+                </div>
             </div>
         </div>
-        <div class="mt-10 text-center"><button onclick="location.reload()" class="text-slate-500 hover:text-white underline text-sm transition">Start Over & Edit Details</button></div>
+        <div class="mt-10 text-center"><button onclick="goBackToForm()" class="text-slate-500 hover:text-white underline text-sm transition">Start Over & Edit Details</button></div>
+    
+    <script>
+        function goBackToForm() {
+            const formView = document.getElementById('formView');
+            const portView = document.getElementById('portfolioView');
+            portView.classList.remove('portfolio-focus-in');
+            portView.classList.add('portfolio-pre-anim');
+            setTimeout(() => {
+                portView.style.display = 'none';
+                formView.style.display = 'block';
+                formView.classList.remove('form-fade-out');
+                window.scrollTo(0, 0);
+            }, 600);
+        }
+    </script>
     </main>
 
     <script>
         lucide.createIcons();
 
-        // CALENDAR LOGIC (Program 2)
+        // Save form data to localStorage
+        function saveFormData() {
+            const formData = {
+                inName: document.getElementById('inName').value,
+                inEmail: document.getElementById('inEmail').value,
+                inPhone: document.getElementById('inPhone').value,
+                inGithub: document.getElementById('inGithub').value,
+                inLinkedin: document.getElementById('inLinkedin').value,
+                inAddress: document.getElementById('inAddress').value,
+                inDegree: document.getElementById('inDegree').value,
+                inCollege: document.getElementById('inCollege').value,
+                inDegreeJoiningYear: document.getElementById('inDegreeJoiningYear').value,
+                inDegreeEndingYear: document.getElementById('inDegreeEndingYear').value,
+                inJuniorCollege: document.getElementById('inJuniorCollege').value,
+                inJCJoiningYear: document.getElementById('inJCJoiningYear').value,
+                inJCEndingYear: document.getElementById('inJCEndingYear').value,
+                inSchool: document.getElementById('inSchool').value,
+                inSchoolJoiningYear: document.getElementById('inSchoolJoiningYear').value,
+                inSchoolEndingYear: document.getElementById('inSchoolEndingYear').value,
+                inJob: document.getElementById('inJob').value,
+                inNat: document.getElementById('inNat').value,
+                inSkills: document.getElementById('inSkills').value,
+                inAbout: document.getElementById('inAbout').value,
+                inprojects: document.getElementById('inprojects').value,
+                inDob: document.getElementById('inDob').value,
+                gender: document.getElementById('gender').value,
+                maritalStatus: document.getElementById('maritalStatus').value
+            };
+            localStorage.setItem('portfolioFormData', JSON.stringify(formData));
+        }
+
+        // Load form data from localStorage
+        function loadFormData() {
+            const savedData = localStorage.getItem('portfolioFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = formData[key];
+                    }
+                });
+                // Update date display if DOB is saved
+                if (formData.inDob) {
+                    document.getElementById('dateDisplay').textContent = formData.inDob;
+                    document.getElementById('dateDisplay').classList.remove('text-slate-400');
+                }
+                // Update gender and marital status displays
+                if (formData.gender) {
+                    document.getElementById('gender-text').textContent = formData.gender;
+                    document.getElementById('gender-text').classList.replace('text-slate-400', 'text-white');
+                }
+                if (formData.maritalStatus) {
+                    document.getElementById('marital-text').textContent = formData.maritalStatus;
+                    document.getElementById('marital-text').classList.replace('text-slate-400', 'text-white');
+                }
+            }
+        }
+
+        // Load form data when page loads
+        // window.addEventListener('load', loadFormData);
+
+        /* ------------------------------------------------------------------ */
+        /* --- INTEGRATED CALENDAR LOGIC (From Program 2) ------------------- */
+        /* ------------------------------------------------------------------ */
         let viewDate = new Date(); 
         let selectedDate = null;
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
         const calToggle = document.getElementById('calToggle');
         const calMenu = document.getElementById('iosCalendar');
         const calDays = document.getElementById('calendarDays');
@@ -301,8 +437,12 @@
         const inDobHidden = document.getElementById('inDob');
 
         calToggle.onclick = (e) => { e.stopPropagation(); calMenu.classList.toggle('hidden'); renderCalendar(); };
-        document.getElementById('monthYearSelect').onclick = (e) => { e.stopPropagation(); pickerOverlay.classList.remove('hidden'); renderPickers(); };
-        document.getElementById('closePicker').onclick = (e) => { e.stopPropagation(); pickerOverlay.classList.add('hidden'); };
+
+        document.getElementById('monthYearSelect').onclick = () => {
+            pickerOverlay.classList.remove('hidden');
+            renderPickers();
+        };
+        document.getElementById('closePicker').onclick = () => pickerOverlay.classList.add('hidden');
 
         function renderCalendar() {
             calDays.innerHTML = '';
@@ -310,27 +450,34 @@
             const month = viewDate.getMonth();
             document.getElementById('currentMonth').innerText = months[month];
             document.getElementById('currentYear').innerText = year;
+
             let firstDay = new Date(year, month, 1).getDay();
             let dayOffset = firstDay === 0 ? 6 : firstDay - 1; 
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+
             for (let i = 0; i < dayOffset; i++) {
                 const empty = document.createElement('div');
                 empty.className = 'day-cell empty';
                 calDays.appendChild(empty);
             }
+
             for (let i = 1; i <= daysInMonth; i++) {
                 const day = document.createElement('div');
                 day.className = 'day-cell';
                 day.innerText = i;
-                if (new Date().toDateString() === new Date(year, month, i).toDateString()) day.classList.add('today');
-                if (selectedDate && selectedDate.toDateString() === new Date(year, month, i).toDateString()) day.classList.add('selected');
+                const isToday = new Date().toDateString() === new Date(year, month, i).toDateString();
+                if (isToday) day.classList.add('today');
+                if (selectedDate && selectedDate.toDateString() === new Date(year, month, i).toDateString()) {
+                    day.classList.add('selected');
+                }
+
                 day.onclick = (e) => {
                     e.stopPropagation();
                     selectedDate = new Date(year, month, i);
                     const formattedDate = `${i < 10 ? '0' + i : i}-${month + 1 < 10 ? '0' + (month + 1) : month + 1}-${year}`;
                     dateDisplay.innerText = formattedDate;
                     dateDisplay.classList.remove('text-slate-400');
-                    inDobHidden.value = formattedDate;
+                    inDobHidden.value = formattedDate; // Bind to Program 1 logic
                     renderCalendar();
                     setTimeout(() => calMenu.classList.add('hidden'), 150);
                 };
@@ -347,15 +494,16 @@
                 btn.type = "button";
                 btn.className = `p-2 text-[10px] rounded-lg transition ${viewDate.getMonth() === i ? 'bg-iosBlue text-white' : 'hover:bg-white/10 text-slate-300'}`;
                 btn.innerText = m.substring(0, 3);
-                btn.onclick = (e) => { e.stopPropagation(); viewDate.setMonth(i); renderCalendar(); renderPickers(); };
+                btn.onclick = () => { viewDate.setMonth(i); renderCalendar(); renderPickers(); };
                 mGrid.appendChild(btn);
             });
             for (let i = 1950; i <= 2050; i++) {
                 const btn = document.createElement('button');
-                btn.type = "button"; btn.id = `year-${i}`;
+                btn.type = "button";
+                btn.id = `year-${i}`;
                 btn.className = `p-2 text-[10px] rounded-lg transition ${viewDate.getFullYear() === i ? 'bg-iosBlue text-white' : 'hover:bg-white/10 text-slate-300'}`;
                 btn.innerText = i;
-                btn.onclick = (e) => { e.stopPropagation(); viewDate.setFullYear(i); renderCalendar(); renderPickers(); };
+                btn.onclick = () => { viewDate.setFullYear(i); renderCalendar(); renderPickers(); };
                 yGrid.appendChild(btn);
             }
             setTimeout(() => {
@@ -367,30 +515,39 @@
         document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); };
         document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); };
         document.getElementById('todayBtn').onclick = (e) => { e.stopPropagation(); viewDate = new Date(); renderCalendar(); };
+        /* ------------------------------------------------------------------ */
 
-        // DROP-DOWN LOGIC
+        // --- DROPDOWN LOGIC (Program 1) ---
         function setupDropdown(btnId, menuId, textId, inputId) {
             const btn = document.getElementById(btnId);
             const menu = document.getElementById(menuId);
             const textDisplay = document.getElementById(textId);
             const hiddenInput = document.getElementById(inputId);
             const options = menu.querySelectorAll('li');
+
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
                 const isClosed = menu.classList.contains('hidden');
                 closeAllDropdowns();
                 if (isClosed) {
                     menu.classList.remove('hidden', 'pointer-events-none');
                     btn.classList.add('active-glass');
-                    requestAnimationFrame(() => { menu.classList.remove('opacity-0', 'scale-95'); menu.classList.add('opacity-100', 'scale-100'); });
+                    requestAnimationFrame(() => {
+                        menu.classList.remove('opacity-0', 'scale-95');
+                        menu.classList.add('opacity-100', 'scale-100');
+                        btn.querySelector('svg').classList.add('rotate-180', 'text-iosBlue');
+                    });
                 }
             });
+
             options.forEach(option => {
                 option.addEventListener('click', (e) => {
                     const val = option.getAttribute('data-value');
                     textDisplay.textContent = val;
                     textDisplay.classList.replace('text-slate-400', 'text-white');
-                    hiddenInput.value = val; closeAllDropdowns();
+                    hiddenInput.value = val;
+                    closeAllDropdowns();
                 });
             });
         }
@@ -401,18 +558,57 @@
                 menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
                 setTimeout(() => { if (menu.classList.contains('opacity-0')) menu.classList.add('hidden'); }, 300);
             });
-            document.querySelectorAll('.dropdown-btn').forEach(btn => btn.classList.remove('active-glass'));
-            calMenu.classList.add('hidden');
+            document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                btn.classList.remove('active-glass');
+                const icon = btn.querySelector('svg');
+                if(icon) icon.classList.remove('rotate-180', 'text-iosBlue');
+            });
+            calMenu.classList.add('hidden'); // Also close calendar
         }
 
         setupDropdown('gender-btn', 'gender-menu', 'gender-text', 'gender');
         setupDropdown('marital-btn', 'marital-menu', 'marital-text', 'maritalStatus');
-        document.addEventListener('click', (e) => { if (!e.target.closest('.dropdown-container')) closeAllDropdowns(); });
 
-        // FORM SUBMISSION
+        // Phone number real-time validation
+        const phoneInput = document.getElementById('inPhone');
+        const phoneError = document.getElementById('phoneError');
+        phoneInput.addEventListener('input', function() {
+            const phoneValue = this.value.replace(/\D/g, '');
+            if (phoneValue.length !== 10) {
+                phoneError.textContent = 'Phone number must be exactly 10 digits.';
+                phoneError.classList.remove('hidden');
+            } else {
+                phoneError.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-container')) closeAllDropdowns();
+        });
+
+        // --- PORTFOLIO GENERATION LOGIC ---
         document.getElementById('detailsForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Phone number validation
+            const phoneInput = document.getElementById('inPhone');
+            const phoneValue = phoneInput.value.replace(/\D/g, ''); // Remove non-digits
+            const phoneError = document.getElementById('phoneError');
+            
+            if (phoneValue.length !== 10) {
+                phoneError.textContent = 'Phone number must be exactly 10 digits.';
+                phoneError.classList.remove('hidden');
+                phoneInput.focus();
+                return;
+            } else {
+                phoneError.classList.add('hidden');
+            }
+            
+            if (!document.getElementById('gender').value || !document.getElementById('maritalStatus').value || !inDobHidden.value) {
+                alert('Please fill all required fields including DOB, Gender and Marital Status.'); 
+                return;
+            }
+
             document.getElementById('outName').textContent = document.getElementById('inName').value;
             document.getElementById('outDob').textContent = inDobHidden.value;
             document.getElementById('outGender').textContent = document.getElementById('gender').value;
@@ -420,60 +616,91 @@
             document.getElementById('outMarital').textContent = document.getElementById('maritalStatus').value;
             document.getElementById('outEmail').textContent = document.getElementById('inEmail').value;
             document.getElementById('outEmailBtn').href = 'mailto:' + document.getElementById('inEmail').value;
-            document.getElementById('outAddress').textContent = document.getElementById('inAddress').value || 'N/A';
-            document.getElementById('outPostal').textContent = document.getElementById('inPostal').value || 'N/A';
-            document.getElementById('outJob').textContent = document.getElementById('inJob').value || 'N/A';
-            document.getElementById('outAbout').textContent = document.getElementById('inAbout').value || 'No bio provided.';
+            document.getElementById('outPhone').textContent = document.getElementById('inPhone').value;
+            document.getElementById('outPhoneBtn').href = 'tel:' + document.getElementById('inPhone').value;
             
-            document.getElementById('outGithub').href = document.getElementById('inGithub').value || '#';
-            document.getElementById('outLinkedin').href = document.getElementById('inLinkedin').value || '#';
+            // Set GitHub link
+            const githubUrl = document.getElementById('inGithub').value;
+            if (githubUrl) {
+                document.getElementById('outGithubBtn').href = githubUrl;
+            } else {
+                document.getElementById('outGithubBtn').style.display = 'none';
+            }
+            
+            // Set LinkedIn link
+            const linkedinUrl = document.getElementById('inLinkedin').value;
+            if (linkedinUrl) {
+                document.getElementById('outLinkedinBtn').href = linkedinUrl;
+            } else {
+                document.getElementById('outLinkedinBtn').style.display = 'none';
+            }
+            
+            document.getElementById('outAddress').textContent = document.getElementById('inAddress').value || 'N/A';
+            
+            // Set education details
+            const degree = document.getElementById('inDegree').value || '';
+            const college = document.getElementById('inCollege').value || '';
+            const degreeJoiningYear = document.getElementById('inDegreeJoiningYear').value || '';
+            const degreeEndingYear = document.getElementById('inDegreeEndingYear').value || '';
+            
+            const juniorCollege = document.getElementById('inJuniorCollege').value || '';
+            const jcJoiningYear = document.getElementById('inJCJoiningYear').value || '';
+            const jcEndingYear = document.getElementById('inJCEndingYear').value || '';
+            
+            const school = document.getElementById('inSchool').value || '';
+            const schoolJoiningYear = document.getElementById('inSchoolJoiningYear').value || '';
+            const schoolEndingYear = document.getElementById('inSchoolEndingYear').value || '';
+            
+            // Degree section
+            document.getElementById('outDegree').textContent = degree || 'No Degree Specified';
+            document.getElementById('outCollege').textContent = college || 'College not specified';
+            document.getElementById('outDegreeJoining').textContent = degreeJoiningYear || '—';
+            document.getElementById('outDegreeEnding').textContent = degreeEndingYear || '—';
+            
+            // Junior College section
+            if (juniorCollege) {
+                document.getElementById('outJuniorCollege').textContent = juniorCollege;
+                document.getElementById('outJCJoining').textContent = jcJoiningYear || '—';
+                document.getElementById('outJCEnding').textContent = jcEndingYear || '—';
+                document.getElementById('juniorCollegeSection').style.display = 'flex';
+            } else {
+                document.getElementById('juniorCollegeSection').style.display = 'none';
+            }
+            
+            // School section
+            if (school) {
+                document.getElementById('outSchool').textContent = school;
+                document.getElementById('outSchoolJoining').textContent = schoolJoiningYear || '—';
+                document.getElementById('outSchoolEnding').textContent = schoolEndingYear || '—';
+                document.getElementById('schoolSection').style.display = 'flex';
+            } else {
+                document.getElementById('schoolSection').style.display = 'none';
+            }
+            
+            document.getElementById('outJob').textContent = document.getElementById('inJob').value || 'Professional';
+            document.getElementById('outAbout').textContent = document.getElementById('inAbout').value || 'No bio provided.';
 
-            // Education Timeline Logic
-            const timeline = document.getElementById('outEducationTimeline');
-            timeline.innerHTML = '';
-            const eduData = [
-                { name: document.getElementById('inCollege').value, start: document.getElementById('inCollegeStart').value, end: document.getElementById('inCollegeEnd').value, label: 'Degree College' },
-                { name: document.getElementById('inJuniorCollege').value, start: document.getElementById('inJuniorStart').value, end: document.getElementById('inJuniorEnd').value, label: 'Junior College' },
-                { name: document.getElementById('inSchool').value,end: document.getElementById('inSchoolEnd').value, label: 'School' }
-            ];
-
-            eduData.forEach(item => {
-                if(item.name) {
-                    const div = document.createElement('div');
-                    div.className = "timeline-item flex gap-6 relative";
-                    div.innerHTML = `
-                        <div class="timeline-line shrink-0 w-12 h-12 rounded-xl bg-iosBlue/20 flex items-center justify-center relative z-10">
-                            <i data-lucide="graduation-cap" class="text-iosBlue w-6 h-6"></i>
-                        </div>
-                        <div class="pb-8">
-                            <h4 class="text-xl font-bold text-white">${item.name}</h4>
-                            <p class="text-iosBlue text-sm font-medium uppercase tracking-wide">${item.label}</p>
-                            <p class="text-slate-400 text-sm mt-1">${item.start} — ${item.end}</p>
-                        </div>
-                    `;
-                    timeline.appendChild(div);
-                }
-            });
-
-            const projContainer = document.getElementById('outProjects');
-            projContainer.innerHTML = '';
-            document.getElementById('inProjects').value.split(',').forEach(p => {
-                if(p.trim()){
-                    const div = document.createElement('div');
-                    div.className = "p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition hover:bg-white/10";
-                    div.innerHTML = `<i data-lucide="folder-code" class="text-iosBlue"></i> <span class="text-white font-medium">${p.trim()}</span>`;
-                    projContainer.appendChild(div);
-                }
-            });
-
+            const skills = document.getElementById('inSkills').value.split(',');
             const skillContainer = document.getElementById('outSkills');
             skillContainer.innerHTML = '';
-            document.getElementById('inSkills').value.split(',').forEach(skill => {
+            skills.forEach(skill => {
                 if (skill.trim()) {
                     const span = document.createElement('span');
-                    span.className = "bg-white/10 border border-white/20 px-4 py-2 rounded-xl text-sm font-medium";
+                    span.className = "bg-white/10 border border-white/20 px-4 py-2 rounded-xl text-sm font-medium tracking-wide";
                     span.textContent = skill.trim();
                     skillContainer.appendChild(span);
+                }
+            });
+
+            const projects = document.getElementById('inprojects').value.split(',');
+            const projectContainer = document.getElementById('outProjects');
+            projectContainer.innerHTML = '';
+            projects.forEach(project => {
+                if (project.trim()) {
+                    const span = document.createElement('span');
+                    span.className = "bg-iosBlue/20 border border-iosBlue/40 px-4 py-2 rounded-xl text-sm font-medium tracking-wide text-iosBlue";
+                    span.textContent = project.trim();
+                    projectContainer.appendChild(span);
                 }
             });
 
@@ -488,9 +715,11 @@
             const dlBtn = document.getElementById('downloadResumeBtn');
             if (resumeFile) {
                 dlBtn.href = URL.createObjectURL(resumeFile);
-                dlBtn.download = `${document.getElementById('inName').value}_Resume.pdf`;
-                dlBtn.style.display = 'inline-flex';
-            } else { dlBtn.style.display = 'none'; }
+                dlBtn.download = `${document.getElementById('inName').value.replace(/\s+/g, '_')}_Resume.pdf`;
+            }
+
+            // Save form data before switching view
+            saveFormData();
 
             const formView = document.getElementById('formView');
             const portView = document.getElementById('portfolioView');
@@ -510,4 +739,3 @@
     </script>
 </body>
 </html>
-
